@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Valuasi Saham</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --background: #f1f5f9;
+            --surface: #ffffff;
+            --text: #1e293b;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            background-color: var(--surface);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+        h2 {
+            text-align: center;
+            color: var(--primary);
+            margin-top: 0;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 1em;
+        }
+        button {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #1d4ed8;
+        }
+        .results {
+            margin-top: 25px;
+            padding: 20px;
+            background-color: #eff6ff;
+            border-radius: 8px;
+            border: 1px solid #bfdbfe;
+            display: none;
+        }
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #dbeafe;
+        }
+        .result-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .result-label {
+            font-weight: 600;
+        }
+        .result-value {
+            font-family: monospace;
+            font-size: 1.1em;
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Kalkulator Valuasi Saham</h2>
+    
+    <div class="form-group">
+        <label for="hargaPasar">Harga Saham Saat Ini (Rp)</label>
+        <input type="number" id="hargaPasar" placeholder="Contoh: 5000">
+    </div>
+
+    <div class="form-group">
+        <label for="labaBersih">Total Laba Bersih / Net Income (Rp)</label>
+        <input type="number" id="labaBersih" placeholder="Contoh: 10000000000">
+    </div>
+
+    <div class="form-group">
+        <label for="totalEkuitas">Total Ekuitas / Equity (Rp)</label>
+        <input type="number" id="totalEkuitas" placeholder="Contoh: 50000000000">
+    </div>
+
+    <div class="form-group">
+        <label for="sahamBeredar">Jumlah Saham Beredar (Lembar)</label>
+        <input type="number" id="sahamBeredar" placeholder="Contoh: 100000000">
+    </div>
+
+    <div class="form-group">
+        <label for="growth">Proyeksi Pertumbuhan Laba / Growth (%)</label>
+        <input type="number" id="growth" value="60" placeholder="Contoh: 15">
+    </div>
+
+    <button onclick="hitungValuasi()">Hitung Valuasi</button>
+
+    <div class="results" id="hasilValuasi">
+        <div class="result-item">
+            <span class="result-label">EPS (Earning Per Share)</span>
+            <span class="result-value" id="resEps">Rp 0</span>
+        </div>
+        <div class="result-item">
+            <span class="result-label">BVPS (Book Value Per Share)</span>
+            <span class="result-value" id="resBvps">Rp 0</span>
+        </div>
+        <div class="result-item">
+            <span class="result-label">PER (Price to Earning Ratio)</span>
+            <span class="result-value" id="resPer">0 x</span>
+        </div>
+        <div class="result-item">
+            <span class="result-label">PBV (Price to Book Value)</span>
+            <span class="result-value" id="resPbv">0 x</span>
+        </div>
+        <div class="result-item" style="margin-top: 15px; border-top: 2px solid #93c5fd; padding-top: 15px;">
+            <span class="result-label">Harga Wajar (Benjamin Graham)</span>
+            <span class="result-value" id="resHargaWajar" style="font-weight: bold; font-size: 1.3em;">Rp 0</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    function formatRupiah(angka) {
+        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(angka);
+    }
+
+    function hitungValuasi() {
+        // Mengambil nilai dari input
+        let hargaPasar = parseFloat(document.getElementById('hargaPasar').value);
+        let labaBersih = parseFloat(document.getElementById('labaBersih').value);
+        let totalEkuitas = parseFloat(document.getElementById('totalEkuitas').value);
+        let sahamBeredar = parseFloat(document.getElementById('sahamBeredar').value);
+        let growth = parseFloat(document.getElementById('growth').value);
+
+        // Validasi input
+        if (isNaN(hargaPasar) || isNaN(labaBersih) || isNaN(totalEkuitas) || isNaN(sahamBeredar) || isNaN(growth)) {
+            alert("Mohon lengkapi semua data dengan angka yang valid.");
+            return;
+        }
+
+        // Perhitungan Indikator
+        let eps = labaBersih / sahamBeredar;
+        let bvps = totalEkuitas / sahamBeredar;
+        let per = hargaPasar / eps;
+        let pbv = hargaPasar / bvps;
+        
+        // Perhitungan Harga Wajar menggunakan Formula Benjamin Graham: V = EPS * (8.5 + 2g)
+        // Dimana 8.5 adalah rasio P/E untuk perusahaan tanpa pertumbuhan, dan g adalah persentase pertumbuhan.
+        let hargaWajar = eps * (8.5 + (2 * growth));
+
+        // Menampilkan Hasil
+        document.getElementById('resEps').innerText = formatRupiah(eps);
+        document.getElementById('resBvps').innerText = formatRupiah(bvps);
+        document.getElementById('resPer').innerText = per.toFixed(2) + ' x';
+        document.getElementById('resPbv').innerText = pbv.toFixed(2) + ' x';
+        document.getElementById('resHargaWajar').innerText = formatRupiah(hargaWajar);
+
+        document.getElementById('hasilValuasi').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
