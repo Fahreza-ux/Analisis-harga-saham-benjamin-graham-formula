@@ -2,8 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kalkulator Valuasi Praktis</title>
+    <title>Kalkulator Valuasi Saham</title>
     <style>
         body { font-family: sans-serif; background: #f4f4f9; padding: 20px; display: flex; justify-content: center; }
         .container { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 400px; width: 100%; }
@@ -12,7 +11,8 @@
         label { display: block; margin-bottom: 5px; font-weight: bold; }
         input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
         button { width: 100%; background: #2563eb; color: white; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .result { margin-top: 20px; padding: 15px; background: #e0f2fe; border-radius: 5px; text-align: center; }
+        .result { margin-top: 20px; padding: 15px; background: #e0f2fe; border-radius: 5px; }
+        .status { margin-top: 10px; font-weight: bold; text-align: center; }
     </style>
 </head>
 <body>
@@ -21,37 +21,51 @@
     <h2>Kalkulator Valuasi</h2>
     
     <div class="form-group">
+        <label>Harga Saham Saat Ini (Rp)</label>
+        <input type="number" id="hargaPasar" placeholder="Contoh: 1215">
+    </div>
+    <div class="form-group">
         <label>EPS (Earning Per Share)</label>
         <input type="number" id="eps" step="0.01" placeholder="Contoh: 141.97">
     </div>
-
     <div class="form-group">
         <label>Pertumbuhan Laba (%)</label>
         <input type="number" id="growth" placeholder="Contoh: 10">
     </div>
 
-    <button onclick="hitung()">Hitung Harga Wajar</button>
+    <button onclick="hitung()">Cek Harga Wajar</button>
 
     <div class="result" id="hasil" style="display:none;">
-        <strong>Harga Wajar (Graham):</strong>
-        <div id="resHarga" style="font-size: 1.5em; color: #2563eb; margin-top: 5px;"></div>
+        <div>Harga Wajar: <span id="resHarga" style="font-weight:bold;"></span></div>
+        <div id="resStatus" class="status"></div>
     </div>
 </div>
 
 <script>
     function hitung() {
+        let hargaPasar = parseFloat(document.getElementById('hargaPasar').value);
         let eps = parseFloat(document.getElementById('eps').value);
         let growth = parseFloat(document.getElementById('growth').value);
         
-        if (isNaN(eps) || isNaN(growth)) {
+        if (isNaN(hargaPasar) || isNaN(eps) || isNaN(growth)) {
             alert("Harap isi semua kolom!");
             return;
         }
 
-        // Rumus Benjamin Graham: V = EPS * (8.5 + 2g)
+        // Rumus Benjamin Graham
         let hargaWajar = eps * (8.5 + (2 * growth));
         
         document.getElementById('resHarga').innerText = "Rp " + hargaWajar.toLocaleString('id-ID', {maximumFractionDigits: 0});
+        
+        let statusDiv = document.getElementById('resStatus');
+        if (hargaPasar < hargaWajar) {
+            statusDiv.innerText = "Status: UNDERVALUED (Harga murah)";
+            statusDiv.style.color = "green";
+        } else {
+            statusDiv.innerText = "Status: OVERVALUED (Harga mahal)";
+            statusDiv.style.color = "red";
+        }
+        
         document.getElementById('hasil').style.display = 'block';
     }
 </script>
